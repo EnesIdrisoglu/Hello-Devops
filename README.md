@@ -2,7 +2,7 @@
 
 This project create kubernetes cluster and deploy python app to the Google Cloud
 
-## Installation
+## Requirements
 
 Terraform 1.0
 
