@@ -1,23 +1,3 @@
-terraform{
-    required_providers{
-        google={
-            source="hashicorp/google"
-            version="3.47.0"
-        }
-        kubernetes={
-            source="hashicorp/kubernetes"
-            version="2.6.1"
-        }
-    }
-}
-
-variable "project" {}
-variable "region" { default="us-central1"}
-variable "cluster_name" {}
-variable "network" { default="default"}
-variable "subnetwork" {default=""}
-variable "ip_range_pods" {default=""}
-variable "ip_range_services" {default=""}
 
 module "gke" {
     source  = "terraform-google-modules/kubernetes-engine/google"
@@ -43,60 +23,5 @@ module "gke" {
     }]
 }
 
-data "google_client_config" "current" {}
-
-provider "kubernetes"{
-    host = "https://${module.gke.endpoint}"
-    cluster_ca_certificate = base64decode(module.gke.ca_certificate)
-    token = data.google_client_config.current.access_token
-}
 
 
-resource "kubernetes_deployment" "example" {
-  metadata {
-    name = "terraform-example"
-    labels = {
-      test = "PythonApp"
-    }
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        test = "PythonApp"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          test = "PythonApp"
-        }
-      }
-
-      spec {
-        container {
-          image = "enesid/python-docker"
-          name  = "app"
-
-          liveness_probe {
-            http_get {
-              path = "/"
-              port = 3000
-
-              http_header {
-                name  = "X-Custom-Header"
-                value = "Awesome"
-              }
-            }
-
-            initial_delay_seconds = 3
-            period_seconds        = 3
-          }
-        }
-      }
-    }
-  }
-}

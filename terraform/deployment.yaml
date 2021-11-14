@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "mysite"
+  labels:
+    app: "mysite"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "python-app"
+  template:
+    metadata:
+      labels:
+        app: "python-app"
+    spec:
+      containers:
+        - name: "python-app"
+          image: "enesid/python-docker"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+              httpHeaders:
+              - name: Custom-Header
+                value: Awesome
+            initialDelaySeconds: 3
+            periodSeconds: 3
